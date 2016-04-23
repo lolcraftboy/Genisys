@@ -40,7 +40,7 @@ class DarkOakDoor extends Door{
 		return true;
 	}
 
-	public function getHardness(){
+	public function getHardness() {
 		return 3;
 	}
 

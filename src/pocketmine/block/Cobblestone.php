@@ -40,7 +40,7 @@ class Cobblestone extends Solid{
 		return "Cobblestone";
 	}
 
-	public function getHardness(){
+	public function getHardness() {
 		return 2;
 	}
 

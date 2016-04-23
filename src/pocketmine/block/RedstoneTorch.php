@@ -1,11 +1,22 @@
 <?php
-/**
- * Author: PeratX
- * Time: 2015/12/22 21:12
- * Copyright(C) 2011-2015 iTX Technologies LLC.
- * All rights reserved.
+
+/*
  *
- * OpenGenisys Project
+ *  _____   _____   __   _   _   _____  __    __  _____
+ * /  ___| | ____| |  \ | | | | /  ___/ \ \  / / /  ___/
+ * | |     | |__   |   \| | | | | |___   \ \/ /  | |___
+ * | |  _  |  __|  | |\   | | | \___  \   \  /   \___  \
+ * | |_| | | |___  | | \  | | |  ___| |   / /     ___| |
+ * \_____/ |_____| |_|  \_| |_| /_____/  /_/     /_____/
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * @author iTX Technologies
+ * @link https://mcper.cn
+ *
  */
 
 namespace pocketmine\block;
@@ -43,7 +54,7 @@ class RedstoneTorch extends RedstoneSource{
 	}
 
 	public function canScheduleUpdate(){
-		return $this->getLevel()->getServer()->allowFakeLowFrequencyPulse;
+		return $this->getLevel()->getServer()->allowFrequencyPulse;
 	}
 
 	public function getFrequency(){
@@ -109,42 +120,13 @@ class RedstoneTorch extends RedstoneSource{
 			$this->activated = true;
 			/** @var Door $block */
 
-			$sides = [Vector3::SIDE_EAST, Vector3::SIDE_WEST, Vector3::SIDE_SOUTH, Vector3::SIDE_NORTH, Vector3::SIDE_UP];
+			$sides = [Vector3::SIDE_EAST, Vector3::SIDE_WEST, Vector3::SIDE_SOUTH, Vector3::SIDE_NORTH, Vector3::SIDE_UP, Vector3::SIDE_DOWN];
 
 			foreach($sides as $side){
 				if(!in_array($side, $ignore)){
 					$block = $this->getSide($side);
 					if(!in_array($hash = Level::blockHash($block->x, $block->y, $block->z), $notCheck)){
-						if(($block instanceof Door) or ($block instanceof Trapdoor) or ($block instanceof FenceGate)){
-							if(!$block->isOpened()) $block->onActivate(new Item(0));
-						}
-						if($block->getId() == Block::TNT) $block->onActivate(new Item(Item::FLINT_AND_STEEL));
-						/** @var InactiveRedstoneLamp $block */
-						if($block->getId() == Block::INACTIVE_REDSTONE_LAMP) $block->turnOn();
-						if($block->getId() == Block::REDSTONE_WIRE){
-							/** @var RedstoneWire $wire */
-							$wire = $block;
-							$wire->calcSignal($this->maxStrength, RedstoneWire::ON);
-						}
-					}
-				}
-			}
-
-			if(!in_array(Vector3::SIDE_DOWN, $ignore)){
-				$block = $this->getSide(Vector3::SIDE_DOWN);
-				if(!in_array($hash = Level::blockHash($block->x, $block->y, $block->z), $notCheck)){
-					if($block->getId() == Block::INACTIVE_REDSTONE_LAMP) $block->turnOn();
-
-					$block = $this->getSide(Vector3::SIDE_DOWN, 2);
-					if(($block instanceof Door) or ($block instanceof Trapdoor) or ($block instanceof FenceGate)){
-						if(!$block->isOpened()) $block->onActivate(new Item(0));
-					}
-					if($block->getId() == Block::TNT) $block->onActivate(new Item(Item::FLINT_AND_STEEL));
-					if($block->getId() == Block::INACTIVE_REDSTONE_LAMP or $block->getId() == Block::ACTIVE_REDSTONE_LAMP) $block->turnOn();
-					if($block->getId() == Block::REDSTONE_WIRE){
-						/** @var RedstoneWire $wire */
-						$wire = $block;
-						$wire->calcSignal($this->maxStrength, RedstoneWire::ON);
+						$this->activateBlock($block);
 					}
 				}
 			}
@@ -171,18 +153,7 @@ class RedstoneTorch extends RedstoneSource{
 				if(!in_array($side, $ignore)){
 					$block = $this->getSide($side);
 					if(!in_array($hash = Level::blockHash($block->x, $block->y, $block->z), $notCheck)){
-						if(!$this->checkPower($block)){
-							if(($block instanceof Door) or ($block instanceof Trapdoor) or ($block instanceof FenceGate)){
-								if($block->isOpened()) $block->onActivate(new Item(0));
-							}
-							/** @var ActiveRedstoneLamp $block */
-							if($block->getId() == Block::ACTIVE_REDSTONE_LAMP) $block->turnOff();
-						}
-						if($block->getId() == Block::REDSTONE_WIRE){
-							/** @var RedstoneWire $wire */
-							$wire = $block;
-							$wire->calcSignal(0, RedstoneWire::OFF);
-						}
+						$this->deactivateBlock($block);
 					}
 				}
 			}
@@ -191,21 +162,12 @@ class RedstoneTorch extends RedstoneSource{
 				$block = $this->getSide(Vector3::SIDE_DOWN);
 				if(!in_array($hash = Level::blockHash($block->x, $block->y, $block->z), $notCheck)){
 					if(!$this->checkPower($block)){
+						/** @var $block ActiveRedstoneLamp */
 						if($block->getId() == Block::ACTIVE_REDSTONE_LAMP) $block->turnOff();
 					}
 
 					$block = $this->getSide(Vector3::SIDE_DOWN, 2);
-					if(!$this->checkPower($block)){
-						if(($block instanceof Door) or ($block instanceof Trapdoor) or ($block instanceof FenceGate)){
-							if($block->isOpened()) $block->onActivate(new Item(0));
-						}
-						if($block->getId() == Block::ACTIVE_REDSTONE_LAMP) $block->turnOff();
-					}
-					if($block->getId() == Block::REDSTONE_WIRE){
-						/** @var RedstoneWire $wire */
-						$wire = $block;
-						$wire->calcSignal(0, RedstoneWire::OFF);
-					}
+					$this->deactivateBlock($block);
 				}
 			}
 			//$this->lastUpdateTime = $this->getLevel()->getServer()->getTick();
@@ -227,8 +189,8 @@ class RedstoneTorch extends RedstoneSource{
 			$side = $this->getDamage();
 
 			if($this->getSide($faces[$side])->isTransparent() === true and
-					!($side === 0 and ($below->getId() === self::FENCE or
-									$below->getId() === self::COBBLE_WALL
+				!($side === 0 and ($below->getId() === self::FENCE or
+						$below->getId() === self::COBBLE_WALL
 					))
 			){
 				$this->getLevel()->useBreakOn($this);
@@ -250,15 +212,16 @@ class RedstoneTorch extends RedstoneSource{
 	public function onBreak(Item $item){
 		$this->getLevel()->setBlock($this, new Air(), true, false);
 		$faces = [
-				1 => 4,
-				2 => 5,
-				3 => 2,
-				4 => 3,
-				5 => 0,
-				6 => 0,
-				0 => 0,
+			1 => 4,
+			2 => 5,
+			3 => 2,
+			4 => 3,
+			5 => 0,
+			6 => 0,
+			0 => 0,
 		];
 		$this->deactivate([$faces[$this->meta]]);
+		$this->getLevel()->setBlockTempData($this);
 	}
 
 	public function place(Item $item, Block $block, Block $target, $face, $fx, $fy, $fz, Player $player = null){
@@ -277,10 +240,10 @@ class RedstoneTorch extends RedstoneSource{
 
 			return true;
 		}elseif(
-				$below->isTransparent() === false or $below->getId() === self::FENCE or
-				$below->getId() === self::COBBLE_WALL or
-				$below->getId() == Block::INACTIVE_REDSTONE_LAMP or
-				$below->getId() == Block::ACTIVE_REDSTONE_LAMP
+			$below->isTransparent() === false or $below->getId() === self::FENCE or
+			$below->getId() === self::COBBLE_WALL or
+			$below->getId() == Block::INACTIVE_REDSTONE_LAMP or
+			$below->getId() == Block::ACTIVE_REDSTONE_LAMP
 		){
 			$this->meta = 0;
 			$this->getLevel()->setBlock($block, $this, true, true);
@@ -293,11 +256,11 @@ class RedstoneTorch extends RedstoneSource{
 
 	public function getDrops(Item $item){
 		return [
-			[Item::REDSTONE_TORCH, 0, 1],
+			[Item::LIT_REDSTONE_TORCH, 0, 1],
 		];
 	}
 
-	public function isActivated(){
+	public function isActivated(Block $from = null){
 		return true;
 	}
 }

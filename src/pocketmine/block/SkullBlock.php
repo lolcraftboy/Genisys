@@ -1,14 +1,24 @@
 <?php
-/**
- * Author: PeratX
- * Time: 2015/12/31 21:16
- * Copyright(C) 2011-2015 iTX Technologies LLC.
- * All rights reserved.
+
+/*
  *
- * OpenGenisys Project
+ *  _____   _____   __   _   _   _____  __    __  _____
+ * /  ___| | ____| |  \ | | | | /  ___/ \ \  / / /  ___/
+ * | |     | |__   |   \| | | | | |___   \ \/ /  | |___
+ * | |  _  |  __|  | |\   | | | \___  \   \  /   \___  \
+ * | |_| | | |___  | | \  | | |  ___| |   / /     ___| |
+ * \_____/ |_____| |_|  \_| |_| /_____/  /_/     /_____/
  *
- * Merged from ImagicalMine
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * @author iTX Technologies
+ * @link https://mcper.cn
+ *
  */
+
 /*
  * THIS IS COPIED FROM THE PLUGIN FlowerPot MADE BY @beito123!!
  * https://github.com/beito123/PocketMine-MP-Plugins/blob/master/test%2FFlowerPot%2Fsrc%2Fbeito%2FFlowerPot%2Fomake%2FSkull.php
@@ -35,8 +45,12 @@ class SkullBlock extends Transparent{
 		$this->meta = $meta;
 	}
 
-	public function getHardness(){
+	public function getHardness() {
 		return 1;
+	}
+	
+	public function isHelmet(){
+		return true;
 	}
 
 	public function isSolid(){
@@ -71,9 +85,15 @@ class SkullBlock extends Transparent{
 				new Byte("SkullType", $item->getDamage()),
 				$rot
 			]);
+			
+			if($item->hasCustomBlockData()){
+			    foreach($item->getCustomBlockData() as $key => $v){
+				    $nbt->{$key} = $v;
+			    }
+			}
 
 			$chunk = $this->getLevel()->getChunk($this->x >> 4, $this->z >> 4);
-			$pot = Tile::createTile("Skull", $chunk, $nbt);
+			$pot = Tile::createTile(Tile::SKULL, $chunk, $nbt);
 			$this->getLevel()->setBlock($block, Block::get(Block::SKULL_BLOCK, $face), true, true);
 			return true;
 		}
@@ -106,7 +126,7 @@ class SkullBlock extends Transparent{
 
 	public function getDrops(Item $item){
 		/** @var Skull $tile */
-		if(($tile = $this->getLevel()->getTile($this)) instanceof Skull){
+		if($this->getLevel()!=null && (($tile = $this->getLevel()->getTile($this)) instanceof Skull)){
 			return [[Item::SKULL, $tile->getSkullType(), 1]];
 		}else
 			return [[Item::SKULL, 0, 1]];

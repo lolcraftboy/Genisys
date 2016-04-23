@@ -36,7 +36,7 @@ class IronBars extends Thin{
 		return "Iron Bars";
 	}
 
-	public function getHardness(){
+	public function getHardness() {
 		return 5;
 	}
 

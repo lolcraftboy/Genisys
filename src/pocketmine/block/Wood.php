@@ -39,7 +39,7 @@ class Wood extends Solid{
 		$this->meta = $meta;
 	}
 
-	public function getHardness(){
+	public function getHardness() {
 		return 2;
 	}
 
@@ -51,6 +51,14 @@ class Wood extends Solid{
 			self::JUNGLE => "Jungle Wood",
 		];
 		return $names[$this->meta & 0x03];
+	}
+
+	public function getBurnChance() {
+		return 5;
+	}
+
+	public function getBurnAbility() {
+		return 10;
 	}
 
 	public function place(Item $item, Block $block, Block $target, $face, $fx, $fy, $fz, Player $player = null){

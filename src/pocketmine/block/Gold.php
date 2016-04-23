@@ -36,7 +36,7 @@ class Gold extends Solid{
 		return "Gold Block";
 	}
 
-	public function getHardness(){
+	public function getHardness() {
 		return 3;
 	}
 

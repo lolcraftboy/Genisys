@@ -24,7 +24,7 @@ class NetherBrickFence extends Transparent {
 		}
 	}
 	
-	public function getHardness(){
+	public function getHardness() {
 		return 2;
 	}
         

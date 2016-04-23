@@ -37,7 +37,7 @@ class Farmland extends Solid{
 		return "Farmland";
 	}
 
-	public function getHardness(){
+	public function getHardness() {
 		return 0.6;
 	}
 
@@ -45,7 +45,7 @@ class Farmland extends Solid{
 		return Tool::TYPE_SHOVEL;
 	}
 
-	protected function recalculateBoundingBox(){
+	protected function recalculateBoundingBox() {
 		return new AxisAlignedBB(
 			$this->x,
 			$this->y,

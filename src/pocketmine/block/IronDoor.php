@@ -23,8 +23,9 @@ namespace pocketmine\block;
 
 use pocketmine\item\Item;
 use pocketmine\item\Tool;
+use pocketmine\Player;
 
-class IronDoor extends Door2{
+class IronDoor extends Door{
 
 	protected $id = self::IRON_DOOR_BLOCK;
 
@@ -40,7 +41,7 @@ class IronDoor extends Door2{
 		return Tool::TYPE_PICKAXE;
 	}
 
-	public function getHardness(){
+	public function getHardness() {
 		return 5;
 	}
 
@@ -52,5 +53,10 @@ class IronDoor extends Door2{
 		}else{
 			return [];
 		}
+	}
+
+	public function onActivate(Item $item, Player $player = null){
+		if($player instanceof Player) return true;
+		else return parent::onActivate($item, $player);
 	}
 }

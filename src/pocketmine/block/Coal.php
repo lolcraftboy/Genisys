@@ -32,7 +32,7 @@ class Coal extends Solid{
 
 	}
 
-	public function getHardness(){
+	public function getHardness() {
 		return 5;
 	}
 
@@ -40,7 +40,15 @@ class Coal extends Solid{
 		return Tool::TYPE_PICKAXE;
 	}
 
-	public function getName(){
+	public function getBurnChance() {
+		return 5;
+	}
+
+	public function getBurnAbility() {
+		return 5;
+	}
+
+	public function getName() {
 		return "Coal Block";
 	}
 

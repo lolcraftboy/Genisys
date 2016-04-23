@@ -40,7 +40,7 @@ class Iron extends Solid{
 		return Tool::TYPE_PICKAXE;
 	}
 
-	public function getHardness(){
+	public function getHardness() {
 		return 5;
 	}
 

@@ -24,6 +24,7 @@ namespace pocketmine\block;
 use pocketmine\event\block\BlockSpreadEvent;
 use pocketmine\item\Item;
 use pocketmine\item\Tool;
+use pocketmine\item\enchantment\enchantment;
 use pocketmine\level\generator\object\TallGrass as TallGrassObject;
 use pocketmine\level\Level;
 use pocketmine\math\Vector3;
@@ -55,24 +56,34 @@ class Grass extends Solid{
 		return Tool::TYPE_SHOVEL;
 	}
 
-	public function getDrops(Item $item){
-		return [
-			[Item::DIRT, 0, 1],
-		];
+	public function getDrops(Item $item) {
+		if($item->getEnchantmentLevel(Enchantment::TYPE_MINING_SILK_TOUCH) > 0){
+			return [
+				[Item::GRASS, 0, 1],
+			];
+		}else{
+			return [
+				[Item::DIRT, 0, 1],
+			];
+		}
 	}
 
 	public function onUpdate($type){
 		if($type === Level::BLOCK_UPDATE_RANDOM){
-			//TODO: light levels
-			$x = mt_rand($this->x - 1, $this->x + 1);
-			$y = mt_rand($this->y - 2, $this->y + 2);
-			$z = mt_rand($this->z - 1, $this->z + 1);
-			$block = $this->getLevel()->getBlock(new Vector3($x, $y, $z));
-			if($block->getId() === Block::DIRT){
-				if($block->getSide(1) instanceof Transparent){
-					Server::getInstance()->getPluginManager()->callEvent($ev = new BlockSpreadEvent($block, $this, new Grass()));
-					if(!$ev->isCancelled()){
-						$this->getLevel()->setBlock($block, $ev->getNewState());
+			$block = $this->getLevel()->getBlock(new Vector3($this->x, $this->y, $this->z));
+			if($block->getSide(1)->getLightLevel() < 4){
+				Server::getInstance()->getPluginManager()->callEvent($ev = new BlockSpreadEvent($block, $this, new Dirt()));
+			}elseif($block->getSide(1)->getLightLevel() >= 9){
+				for($l = 0; $l < 4; ++$l){
+					$x = mt_rand($this->x - 1, $this->x + 1);
+					$y = mt_rand($this->y - 2, $this->y + 2);
+					$z = mt_rand($this->z - 1, $this->z + 1);
+					$block = $this->getLevel()->getBlock(new Vector3($x, $y, $z));
+					if($block->getId() === Block::DIRT && $block->getDamage() === 0x0F && $block->getSide(1)->getLightLevel() >= 4 && $block->z <= 2){
+						Server::getInstance()->getPluginManager()->callEvent($ev = new BlockSpreadEvent($block, $this, new Grass()));
+						if(!$ev->isCancelled()){
+							$this->getLevel()->setBlock($block, $ev->getNewState());
+						}
 					}
 				}
 			}
@@ -86,12 +97,12 @@ class Grass extends Solid{
 
 			return true;
 		}elseif($item->isHoe()){
-			$item->useOn($this);
+			$item->useOn($this, 2);
 			$this->getLevel()->setBlock($this, new Farmland());
 
 			return true;
 		}elseif($item->isShovel() and $this->getSide(1)->getId() === Block::AIR){
-			$item->useOn($this);
+			$item->useOn($this, 2);
 			$this->getLevel()->setBlock($this, new GrassPath());
 
 			return true;

@@ -24,6 +24,7 @@ namespace pocketmine\block;
 use pocketmine\inventory\AnvilInventory;
 use pocketmine\item\Item;
 use pocketmine\item\Tool;
+use pocketmine\level\sound\AnvilBreakSound;
 use pocketmine\Player;
 
 class Anvil extends Fallable{
@@ -42,7 +43,7 @@ class Anvil extends Fallable{
 		return true;
 	}
 
-	public function getHardness(){
+	public function getHardness() {
 		return 5;
 	}
 
@@ -61,7 +62,7 @@ class Anvil extends Fallable{
 	public function onActivate(Item $item, Player $player = null){
 		if(!$this->getLevel()->getServer()->anviletEnabled) return true;
 		if($player instanceof Player){
-			if($player->isCreative()){
+			if($player->isCreative() and $player->getServer()->limitedCreative){
 				return true;
 			}
 
@@ -69,6 +70,12 @@ class Anvil extends Fallable{
 		}
 
 		return true;
+	}
+
+	public function onBreak(Item $item) {
+		parent::onBreak($item);
+		$sound = new AnvilBreakSound($this);
+		$this->getLevel()->addSound($sound);
 	}
 
 	public function getDrops(Item $item){

@@ -1,9 +1,16 @@
 <?php
 
+/**
+ * OpenGenisys Project
+ *
+ * @author PeratX
+ */
+
 namespace pocketmine\item;
 
 use pocketmine\level\Level;
 use pocketmine\block\Block;
+use pocketmine\nbt\tag\Int;
 use pocketmine\Player;
 use pocketmine\nbt\tag\Compound;
 use pocketmine\nbt\tag\Enum;
@@ -25,9 +32,9 @@ class Boat extends Item{
 
 		$boat = new BoatEntity($player->getLevel()->getChunk($realPos->getX() >> 4, $realPos->getZ() >> 4), new Compound("", [
 			"Pos" => new Enum("Pos", [
-				new Double("", $realPos->getX()),
+				new Double("", $realPos->getX() + 0.5),
 				new Double("", $realPos->getY()),
-				new Double("", $realPos->getZ())
+				new Double("", $realPos->getZ() + 0.5)
 			]),
 			"Motion" => new Enum("Motion", [
 				new Double("", 0),
@@ -38,6 +45,7 @@ class Boat extends Item{
 				new Float("", 0),
 				new Float("", 0)
 			]),
+			"WoodID" => new Int("WoodID", $this->getDamage())
 		]));
 		$boat->spawnToAll();
 

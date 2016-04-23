@@ -40,7 +40,7 @@ class NetherBrick extends Solid{
 		return "Nether Bricks";
 	}
 
-	public function getHardness(){
+	public function getHardness() {
 		return 2;
 	}
 

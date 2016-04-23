@@ -36,7 +36,7 @@ class GoldOre extends Solid{
 		return "Gold Ore";
 	}
 
-	public function getHardness(){
+	public function getHardness() {
 		return 3;
 	}
 

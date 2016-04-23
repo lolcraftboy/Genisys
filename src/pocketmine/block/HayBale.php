@@ -36,8 +36,16 @@ class HayBale extends Solid{
 		return "Hay Bale";
 	}
 
-	public function getHardness(){
+	public function getHardness() {
 		return 0.5;
+	}
+
+	public function getBurnChance() {
+		return 60;
+	}
+
+	public function getBurnAbility() {
+		return 20;
 	}
 
 	public function place(Item $item, Block $block, Block $target, $face, $fx, $fy, $fz, Player $player = null){

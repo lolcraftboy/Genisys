@@ -25,7 +25,11 @@ class StillLava extends Lava{
 
 	protected $id = self::STILL_LAVA;
 
-	public function getName(){
+	public function onUpdate($type){
+		return false;
+	}
+
+	public function getName() {
 		return "Still Lava";
 	}
 

@@ -24,9 +24,11 @@ namespace pocketmine\block;
 use pocketmine\event\block\BlockSpreadEvent;
 use pocketmine\item\Item;
 use pocketmine\item\Tool;
+use pocketmine\item\enchantment\enchantment;
 use pocketmine\level\Level;
 use pocketmine\math\Vector3;
 use pocketmine\Server;
+
 
 class Mycelium extends Solid{
 
@@ -44,14 +46,20 @@ class Mycelium extends Solid{
 		return Tool::TYPE_SHOVEL;
 	}
 
-	public function getHardness(){
+	public function getHardness() {
 		return 0.6;
 	}
 
-	public function getDrops(Item $item){
-		return [
-			[Item::DIRT, 0, 1],
-		];
+	public function getDrops(Item $item) {
+		if($item->getEnchantmentLevel(Enchantment::TYPE_MINING_SILK_TOUCH) > 0){
+			return [
+				[Item::MYCELIUM, 0, 1],
+			];
+		}else{
+			return [
+				[Item::DIRT, 0, 1],
+			];
+		}
 	}
 
 	public function onUpdate($type){

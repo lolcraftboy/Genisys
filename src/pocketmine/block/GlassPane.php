@@ -23,6 +23,7 @@ namespace pocketmine\block;
 
 
 use pocketmine\item\Item;
+use pocketmine\item\enchantment\enchantment;
 
 class GlassPane extends Thin{
 
@@ -36,11 +37,17 @@ class GlassPane extends Thin{
 		return "Glass Pane";
 	}
 
-	public function getHardness(){
+	public function getHardness() {
 		return 0.3;
 	}
 
-	public function getDrops(Item $item){
-		return [];
+	public function getDrops(Item $item) {
+		if($item->getEnchantmentLevel(Enchantment::TYPE_MINING_SILK_TOUCH) > 0){
+			return [
+				[Item::GLASS_PANE, 0, 1],
+			];
+		}else{
+			return [];
+		}
 	}
 }

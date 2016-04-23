@@ -1,14 +1,24 @@
 <?php
-/**
- * Author: PeratX
- * Time: 2015/12/6 14:20
- * Copyright(C) 2011-2015 iTX Technologies LLC.
- * All rights reserved.
+
+/*
  *
- * OpenGenisys Project
+ *  _____   _____   __   _   _   _____  __    __  _____
+ * /  ___| | ____| |  \ | | | | /  ___/ \ \  / / /  ___/
+ * | |     | |__   |   \| | | | | |___   \ \/ /  | |___
+ * | |  _  |  __|  | |\   | | | \___  \   \  /   \___  \
+ * | |_| | | |___  | | \  | | |  ___| |   / /     ___| |
+ * \_____/ |_____| |_|  \_| |_| /_____/  /_/     /_____/
  *
- * Merged from ImagicalMine
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * @author iTX Technologies
+ * @link https://mcper.cn
+ *
  */
+
 namespace pocketmine\block;
 
 use pocketmine\item\Item;
@@ -25,7 +35,7 @@ use pocketmine\math\Vector3;
 
 class BrewingStand extends Transparent{
 
-	protected $id = self::BREWING_STAND;
+	protected $id = self::BREWING_STAND_BLOCK;
 
 	public function __construct($meta = 0){
 		$this->meta = $meta;
@@ -63,8 +73,12 @@ class BrewingStand extends Transparent{
 		return true;
 	}
 
-	public function getHardness(){
-		return 3;
+	public function getHardness() {
+		return 0.5;
+	}
+
+	public function getResistance(){
+		return 2.5;
 	}
 
 	public function getName(){
@@ -74,7 +88,7 @@ class BrewingStand extends Transparent{
 	public function onActivate(Item $item, Player $player = null){
 		if($player instanceof Player){
 			//TODO lock
-			if($player->isCreative()){
+			if($player->isCreative() and $player->getServer()->limitedCreative){
 				return true;
 			}
 			$t = $this->getLevel()->getTile($this);

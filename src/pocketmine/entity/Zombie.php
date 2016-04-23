@@ -36,6 +36,8 @@ class Zombie extends Monster{
 	public $width = 0.6;
 	public $length = 0.6;
 	public $height = 1.8;
+
+	public $dropExp = [5, 5];
 	
 	public $drag = 0.2;
 	public $gravity = 0.3;
@@ -53,11 +55,6 @@ class Zombie extends Monster{
 
 	public function getName(){
 		return "Zombie";
-	}
-	
-	public function kill(){
-		parent::kill();
-		if($this->getLevel()->getServer()->expEnabled) $this->getLevel()->addExperienceOrb($this->add(0, 1, 0), 5); //掉落经验
 	}
 	
 	public function initEntity(){
@@ -234,7 +231,7 @@ class Zombie extends Monster{
 		$drops = [];
 		if($this->lastDamageCause instanceof EntityDamageByEntityEvent and $this->lastDamageCause->getEntity() instanceof Player){
 			if(mt_rand(0, 199) < 5){
-				switch(mt_rand(0, 2)){
+				switch(mt_rand(0, 3)){
 					case 0:
 						$drops[] = ItemItem::get(ItemItem::IRON_INGOT, 0, 1);
 						break;
@@ -245,6 +242,10 @@ class Zombie extends Monster{
 						$drops[] = ItemItem::get(ItemItem::POTATO, 0, 1);
 						break;
 				}
+			}
+			$count = mt_rand(0, 2);
+			if($count > 0){
+				$drops[] = ItemItem::get(ItemItem::ROTTEN_FLESH, 0, $count);
 			}
 		}
 

@@ -167,8 +167,8 @@ class PoweredRail extends Rail{
 		return true;
 	}
 
-	public function getHardness(){
-		return 0.6;
+	public function getHardness() {
+		return 0.7;
 	}
 
 	public function canPassThrough(){

@@ -36,7 +36,7 @@ class Sandstone extends Solid{
 		$this->meta = $meta;
 	}
 
-	public function getHardness(){
+	public function getHardness() {
 		return 0.8;
 	}
 

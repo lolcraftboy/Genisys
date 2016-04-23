@@ -28,8 +28,12 @@ class Pumpkin extends Solid{
 
 	}
 
-	public function getHardness(){
+	public function getHardness() {
 		return 1;
+	}
+	
+	public function isHelmet(){
+		return true;
 	}
 
 	public function getToolType(){

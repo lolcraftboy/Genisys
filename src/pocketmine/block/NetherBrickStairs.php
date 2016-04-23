@@ -32,7 +32,7 @@ class NetherBrickStairs extends Stair{
 		return "Nether Bricks Stairs";
 	}
 
-	public function getHardness(){
+	public function getHardness() {
 		return 2;
 	}
 

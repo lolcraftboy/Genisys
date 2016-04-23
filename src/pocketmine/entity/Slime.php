@@ -1,25 +1,31 @@
 <?php
+
+/**
+ * OpenGenisys Project
+ *
+ * @author PeratX
+ */
+
 namespace pocketmine\entity;
 
-use pocketmine\network\Network;
 use pocketmine\network\protocol\AddEntityPacket;
 use pocketmine\Player;
-use pocketmine\entity\Living;
+use pocketmine\event\entity\EntityDamageByEntityEvent;
 use pocketmine\item\Item as ItemItem;
 
 class Slime extends Living{
 	const NETWORK_ID = 37;
+
+	const DATA_SLIME_SIZE = 16;
+
 	public $width = 0.3;
 	public $length = 0.9;
 	public $height = 5;
+
+	public $dropExp = [1, 4];
 	
 	public function getName(){
 		return "Slime";
-	}
-	
-	public function kill(){
-		parent::kill();
-		if($this->getLevel()->getServer()->expEnabled) $this->getLevel()->addExperienceOrb($this->add(0, 1, 0), mt_rand(1, 4));
 	}
 	
 	public function spawnTo(Player $player){
@@ -35,7 +41,7 @@ class Slime extends Living{
 		$pk->yaw = $this->yaw;
 		$pk->pitch = $this->pitch;
 		$pk->metadata = $this->dataProperties;
-		$player->dataPacket($pk->setChannel(Network::CHANNEL_ENTITY_SPAWNING));
+		$player->dataPacket($pk);
 		parent::spawnTo($player);
 	}
 	

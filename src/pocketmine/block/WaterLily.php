@@ -45,15 +45,19 @@ class WaterLily extends Flowable{
 		return "Lily Pad";
 	}
 
-	public function getHardness(){
-		return 0.6;
+	public function getHardness() {
+		return 0;
+	}
+
+	public function getResistance(){
+		return 0;
 	}
 
 	public function canPassThrough(){
 		return true;
 	}
 
-	protected function recalculateBoundingBox(){
+	protected function recalculateBoundingBox() {
 		return new AxisAlignedBB(
 			$this->x,
 			$this->y,

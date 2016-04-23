@@ -21,8 +21,6 @@
 
 namespace pocketmine\entity;
 
-
-use pocketmine\network\Network;
 use pocketmine\network\protocol\AddEntityPacket;
 use pocketmine\network\protocol\MobEquipmentPacket;
 use pocketmine\Player;
@@ -30,14 +28,18 @@ use pocketmine\item\Item as ItemItem;
 
 class PigZombie extends Monster{
 	const NETWORK_ID = 36;
+
+	public $width = 0.6;
+	public $length = 0.6;
+	public $height = 1.8;
+
+	public $drag = 0.2;
+	public $gravity = 0.3;
+
+	public $dropExp = [5, 5];
 	
 	public function getName(){
 		return "PigZombie";
-	}
-	
-	public function kill(){
-		parent::kill();
-		if($this->getLevel()->getServer()->expEnabled) $this->getLevel()->addExperienceOrb($this->add(0, 1, 0), 5);
 	}
 	
 	public function spawnTo(Player $player){
@@ -53,7 +55,7 @@ class PigZombie extends Monster{
 		$pk->yaw = $this->yaw;
 		$pk->pitch = $this->pitch;
 		$pk->metadata = $this->dataProperties;
-		$player->dataPacket($pk->setChannel(Network::CHANNEL_ENTITY_SPAWNING));
+		$player->dataPacket($pk);
 
 		parent::spawnTo($player);
 		

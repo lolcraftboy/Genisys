@@ -21,9 +21,10 @@
 
 namespace pocketmine\entity;
 
-
+use pocketmine\nbt\tag\Byte;
 use pocketmine\nbt\tag\Int;
-use pocketmine\network\Network;
+use pocketmine\level\format\FullChunk;
+use pocketmine\nbt\tag\Compound;
 use pocketmine\network\protocol\AddEntityPacket;
 use pocketmine\Player;
 
@@ -37,12 +38,24 @@ class Villager extends Creature implements NPC, Ageable{
 
 	const NETWORK_ID = 15;
 
+	const DATA_PROFESSION_ID = 16;
+
 	public $width = 0.6;
 	public $length = 0.6;
 	public $height = 1.8;
 
 	public function getName(){
 		return "Villager";
+	}
+
+	public function __construct(FullChunk $chunk, Compound $nbt){
+		if(!isset($nbt->Profession)){
+			$nbt->Profession = new Byte("Profession", mt_rand(0, 5));
+		}
+
+		parent::__construct($chunk, $nbt);
+
+		$this->setDataProperty(self::DATA_PROFESSION_ID, self::DATA_TYPE_BYTE, $this->getProfession());
 	}
 
 	protected function initEntity(){
@@ -76,11 +89,11 @@ class Villager extends Creature implements NPC, Ageable{
 	 * @param $profession
 	 */
 	public function setProfession($profession){
-		$this->namedtag->Profession = new Int("Profession", $profession);
+		$this->namedtag->Profession = new Byte("Profession", $profession);
 	}
 
 	public function getProfession(){
-		return $this->namedtag["Profession"];
+		return (int) $this->namedtag["Profession"];
 	}
 
 	public function isBaby(){

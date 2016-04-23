@@ -31,6 +31,7 @@ use pocketmine\nbt\tag\Enum;
 use pocketmine\nbt\tag\Float;
 use pocketmine\nbt\tag\String;
 use pocketmine\Player;
+use pocketmine\tile\MobSpawner;
 
 class SpawnEgg extends Item{
 	public function __construct($meta = 0, $count = 1){
@@ -42,42 +43,46 @@ class SpawnEgg extends Item{
 	}
 
 	public function onActivate(Level $level, Player $player, Block $block, Block $target, $face, $fx, $fy, $fz){
-		$entity = null;
-		$chunk = $level->getChunk($block->getX() >> 4, $block->getZ() >> 4);
+		if($target->getId() == Block::MONSTER_SPAWNER){
+			return true;
+		}else{
+			$entity = null;
+			$chunk = $level->getChunk($block->getX() >> 4, $block->getZ() >> 4);
 
-		if(!($chunk instanceof FullChunk)){
-			return false;
-		}
+			if(!($chunk instanceof FullChunk)){
+				return false;
+			}
 
 		$nbt = new Compound("", [
 			"Pos" => new Enum("Pos", [
 				new Double("", $block->getX() + 0.5),
 				new Double("", $block->getY()),
 				new Double("", $block->getZ() + 0.5)
-			]),
+				]),
 			"Motion" => new Enum("Motion", [
 				new Double("", 0),
 				new Double("", 0),
 				new Double("", 0)
-			]),
+				]),
 			"Rotation" => new Enum("Rotation", [
 				new Float("", lcg_value() * 360),
 				new Float("", 0)
-			]),
-		]);
+				]),
+			]);
 
-		if($this->hasCustomName()){
+			if($this->hasCustomName()){
 			$nbt->CustomName = new String("CustomName", $this->getCustomName());
-		}
-
-		$entity = Entity::createEntity($this->meta, $chunk, $nbt);
-
-		if($entity instanceof Entity){
-			if($player->isSurvival()){
-				--$this->count;
 			}
-			$entity->spawnToAll();
-			return true;
+
+			$entity = Entity::createEntity($this->meta, $chunk, $nbt);
+
+			if($entity instanceof Entity){
+				if($player->isSurvival()){
+					--$this->count;
+				}
+				$entity->spawnToAll();
+				return true;
+			}
 		}
 
 		return false;

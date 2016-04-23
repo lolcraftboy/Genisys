@@ -25,7 +25,11 @@ class StillWater extends Water{
 
 	protected $id = self::STILL_WATER;
 
-	public function getName(){
+	public function onUpdate($type){
+		return false;
+	}
+
+	public function getName() {
 		return "Still Water";
 	}
 }

@@ -29,6 +29,7 @@ use pocketmine\nbt\tag\Compound;
 use pocketmine\nbt\tag\Int;
 use pocketmine\nbt\tag\String;
 use pocketmine\Player;
+use pocketmine\tile\EnchantTable;
 use pocketmine\tile\Tile;
 
 class EnchantingTable extends Transparent{
@@ -87,12 +88,36 @@ class EnchantingTable extends Transparent{
 		if(!$this->getLevel()->getServer()->anviletEnabled) return true;
 		if($player instanceof Player){
 			//TODO lock
-			if($player->isCreative()){
+			if($player->isCreative() and $player->getServer()->limitedCreative){
 				return true;
 			}
+			$tile = $this->getLevel()->getTile($this);
+			$enchantTable = null;
+			if($tile instanceof EnchantTable)
+				$enchantTable = $tile;
+		}else{
+			$this->getLevel()->setBlock($this, $this, true, true);
+			$nbt = new Compound("", [
+				new String("id", Tile::ENCHANT_TABLE),
+				new Int("x", $this->x),
+				new Int("y", $this->y),
+				new Int("z", $this->z)
+			]);
 
-			$player->addWindow(new EnchantInventory($this));
+			if($item->hasCustomName()){
+				$nbt->CustomName = new String("CustomName", $item->getCustomName());
+			}
+
+			if($item->hasCustomBlockData()){
+				foreach($item->getCustomBlockData() as $key => $v){
+					$nbt->{$key} = $v;
+				}
+			}
+
+			$enchantTable = Tile::createTile(Tile::ENCHANT_TABLE, $this->getLevel()->getChunk($this->x >> 4, $this->z >> 4), $nbt);
 		}
+
+		$player->addWindow($enchantTable->getInventory());
 
 		return true;
 	}

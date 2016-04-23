@@ -40,6 +40,7 @@ use pocketmine\level\format\Chunk;
 use pocketmine\level\format\FullChunk;
 use pocketmine\level\Level;
 use pocketmine\level\Location;
+use pocketmine\level\particle\DestroyBlockParticle;
 use pocketmine\level\Position;
 use pocketmine\math\AxisAlignedBB;
 use pocketmine\math\Math;
@@ -193,6 +194,9 @@ abstract class Entity extends Location implements Metadatable{
 	protected $fireProof;
 	private $invulnerable;
 
+	/** @var AttributeMap */
+	protected $attributeMap;
+
 	protected $gravity;
 	protected $drag;
 
@@ -214,6 +218,8 @@ abstract class Entity extends Location implements Metadatable{
 
 	/** @var PressurePlate */
 	protected $activatedPressurePlates = [];
+
+	public $dropExp = [0, 0];
 
 
 	public function __construct(FullChunk $chunk, Compound $nbt){
@@ -276,6 +282,8 @@ abstract class Entity extends Location implements Metadatable{
 		}
 		$this->invulnerable = $this->namedtag["Invulnerable"] > 0 ? true : false;
 
+		$this->attributeMap = new AttributeMap();
+
 		$this->chunk->addEntity($this);
 		$this->level->addEntity($this);
 		$this->initEntity();
@@ -284,6 +292,20 @@ abstract class Entity extends Location implements Metadatable{
 
 		$this->scheduleUpdate();
 
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getDropExpMin(){
+		return $this->dropExp[0];
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getDropExpMax(){
+		return $this->dropExp[1];
 	}
 
 	/**
@@ -512,6 +534,8 @@ abstract class Entity extends Location implements Metadatable{
 	}
 
 	protected function initEntity(){
+		$this->addAttributes();
+
 		if(isset($this->namedtag->ActiveEffects)){
 			foreach($this->namedtag->ActiveEffects->getValue() as $e){
 				$effect = Effect::getEffect($e["Id"]);
@@ -534,6 +558,9 @@ abstract class Entity extends Location implements Metadatable{
 		}
 
 		$this->scheduleUpdate();
+	}
+
+	protected function addAttributes(){
 	}
 
 	/**
@@ -686,6 +713,10 @@ abstract class Entity extends Location implements Metadatable{
 		return $this->lastDamageCause;
 	}
 
+	public function getAttributeMap(){
+		return $this->attributeMap;
+	}
+
 	/**
 	 * @return int
 	 */
@@ -786,7 +817,7 @@ abstract class Entity extends Location implements Metadatable{
 			}
 
 			if($direction === 5){
-				$this->motionY = $force;
+				$this->motionZ = $force;
 
 				return true;
 			}
@@ -1015,8 +1046,22 @@ abstract class Entity extends Location implements Metadatable{
 	}
 
 	public function fall($fallDistance){
-		if($this->isInsideOfWater()) return;
+		if($this instanceof Player and $this->isSpectator()){
+			return;
+		}
+		if($this->getLevel()->getServer()->destroyBlockParticle and $fallDistance > 3){
+			$this->getLevel()->addParticle(new DestroyBlockParticle($this, $this->getLevel()->getBlock($this->floor()->subtract(0, 1, 0))));
+		}
+		if($this->isInsideOfWater()){
+			return;
+		}
 		$damage = floor($fallDistance - 3 - ($this->hasEffect(Effect::JUMP) ? $this->getEffect(Effect::JUMP)->getAmplifier() + 1 : 0));
+		foreach($this->getBlocksAround() as $block){
+			if($block->getId() === Block::SLIME_BLOCK){
+				$damage = 0;
+				break;
+			}
+		}
 		if($damage > 0){
 			$ev = new EntityDamageEvent($this, EntityDamageEvent::CAUSE_FALL, $damage);
 			$this->attack($ev->getFinalDamage(), $ev);
@@ -1103,6 +1148,15 @@ abstract class Entity extends Location implements Metadatable{
 
 		if($bb !== null and $block->isSolid() and !$block->isTransparent() and $bb->intersectsWith($this->getBoundingBox())){
 			return true;
+		}
+		return false;
+	}
+
+	public function isInsideOfFire(){
+		foreach($this->getBlocksAround() as $block){
+			if($block instanceof Fire){
+				return true;
+			}
 		}
 		return false;
 	}
@@ -1412,6 +1466,16 @@ abstract class Entity extends Location implements Metadatable{
 		}
 	}
 
+	public function setLocation(Location $pos){
+		if($this->closed){
+			return false;
+		}
+
+		$this->setPositionAndRotation($pos, $pos->yaw, $pos->pitch);
+
+		return true;
+	}
+
 	public function setPosition(Vector3 $pos){
 		if($this->closed){
 			return false;
@@ -1464,7 +1528,13 @@ abstract class Entity extends Location implements Metadatable{
 
 	public function kill(){
 		$this->health = 0;
+		$this->removeAllEffects();
 		$this->scheduleUpdate();
+
+		if($this->getLevel()->getServer()->expEnabled) {
+			$exp = mt_rand($this->getDropExpMin(), $this->getDropExpMax());
+			if($exp > 0) $this->getLevel()->spawnXPOrb($this, $exp);
+		}
 	}
 
 	/**
@@ -1540,6 +1610,7 @@ abstract class Entity extends Location implements Metadatable{
 		if(!$this->closed){
 			$this->server->getPluginManager()->callEvent(new EntityDespawnEvent($this));
 			$this->closed = true;
+			$this->removeEffect(Effect::HEALTH_BOOST);
 			$this->despawnFromAll();
 			if($this->linkedType != 0){
 				$this->linkedEntity->setLinked(0, $this);
@@ -1557,6 +1628,12 @@ abstract class Entity extends Location implements Metadatable{
 			foreach($this->activatedPressurePlates as $key => $block){
 				$block->checkActivation();
 			}
+		}
+
+		$this->activatedPressurePlates = [];
+
+		if($this->attributeMap != null) {
+			$this->attributeMap = null;
 		}
 	}
 
@@ -1679,9 +1756,10 @@ abstract class Entity extends Location implements Metadatable{
 	}
 
 	/**
-	 * @param int  $propertyId ;
-	 * @param int  $id
+	 * @param      $propertyId
+	 * @param      $id
 	 * @param bool $value
+	 * @param int  $type
 	 */
 	public function setDataFlag($propertyId, $id, $value = true, $type = self::DATA_TYPE_BYTE){
 		if($this->getDataFlag($propertyId, $id) !== $value){

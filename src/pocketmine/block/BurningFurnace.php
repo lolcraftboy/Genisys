@@ -48,7 +48,7 @@ class BurningFurnace extends Solid{
 		return true;
 	}
 
-	public function getHardness(){
+	public function getHardness() {
 		return 3.5;
 	}
 
@@ -123,7 +123,7 @@ class BurningFurnace extends Solid{
 				}
 			}
 
-			if($player->isCreative()){
+			if($player->isCreative() and $player->getServer()->limitedCreative){
 				return true;
 			}
 

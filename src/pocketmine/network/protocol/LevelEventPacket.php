@@ -32,6 +32,7 @@ class LevelEventPacket extends DataPacket{
 	const EVENT_SOUND_SHOOT = 1002;
 	const EVENT_SOUND_DOOR = 1003;
 	const EVENT_SOUND_FIZZ = 1004;
+	const EVENT_SOUND_TNT = 1005;
 
 	const EVENT_SOUND_GHAST = 1007;
 	const EVENT_SOUND_GHAST_SHOOT = 1008;
@@ -61,6 +62,11 @@ class LevelEventPacket extends DataPacket{
 	const EVENT_START_THUNDER = 3002;
 	const EVENT_STOP_RAIN = 3003;
 	const EVENT_STOP_THUNDER = 3004;
+
+	const EVENT_SOUND_EXPLODE = 3501;
+	const EVENT_SOUND_SPELL = 3504;
+	const EVENT_SOUND_SPLASH = 3506;
+	const EVENT_SOUND_GRAY_SPLASH = 3507;//TODO: fix name
 
 	const EVENT_SET_DATA = 4000;
 

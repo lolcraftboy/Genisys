@@ -39,7 +39,7 @@ class FenceGate extends Transparent implements ElectricalAppliance{
 		return "Oak Fence Gate";
 	}
 
-	public function getHardness(){
+	public function getHardness() {
 		return 2;
 	}
 
@@ -52,7 +52,7 @@ class FenceGate extends Transparent implements ElectricalAppliance{
 	}
 
 
-	protected function recalculateBoundingBox(){
+	protected function recalculateBoundingBox() {
 
 		if(($this->getDamage() & 0x04) > 0){
 			return null;

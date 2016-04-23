@@ -37,7 +37,7 @@ class StoneBricks extends Solid{
 		$this->meta = $meta;
 	}
 
-	public function getHardness(){
+	public function getHardness() {
 		return 1.5;
 	}
 

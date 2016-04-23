@@ -35,7 +35,7 @@ class Bedrock extends Solid{
 		return "Bedrock";
 	}
 
-	public function getHardness(){
+	public function getHardness() {
 		return -1;
 	}
 

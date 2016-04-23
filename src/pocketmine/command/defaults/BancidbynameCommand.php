@@ -37,11 +37,9 @@ class BancidbynameCommand extends VanillaCommand{
 
 		$sender->getServer()->getCIDBans()->addBan($target->getClientId(), $reason, \null, $sender->getName());
 
-		if(($player = $sender->getServer()->getPlayerExact($name)) instanceof Player){
-			$player->kick($reason !== "" ? "Banned by admin. Reason:" . $reason : "Banned by admin.");
-		}
+		$target->kick($reason !== "" ? "Banned by admin. Reason:" . $reason : "Banned by admin.");
 
-		Command::broadcastCommandMessage($sender, new TranslationContainer("%commands.bancidbyname.success", [$player !== \null ? $player->getName() : $name]));
+		Command::broadcastCommandMessage($sender, new TranslationContainer("%commands.bancidbyname.success", [$target !== \null ? $target->getName() : $name]));
 
 		return \true;
 	}

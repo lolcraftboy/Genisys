@@ -31,11 +31,11 @@ use pocketmine\utils\Utils;
 class Installer{
 	const DEFAULT_NAME = "Minecraft: PE Server";
 	const DEFAULT_PORT = 19132;
-	const DEFAULT_MEMORY = 256;
+	const DEFAULT_MEMORY = 512;
 	const DEFAULT_PLAYERS = 20;
 	const DEFAULT_GAMEMODE = 0;
 
-	private $lang;
+	private $defaultLang;
 
 	public function __construct(){
 		echo "[*] PocketMine-MP set-up wizard\n";
@@ -44,12 +44,13 @@ class Installer{
 			echo " $native => $short\n";
 		}
 		do{
-			echo "[?] Language (en): ";
-			$lang = strtolower($this->getInput("en"));
+			echo "[?] Language (eng): ";
+			$lang = strtolower($this->getInput("eng"));
 			if(!isset(InstallerLang::$languages[$lang])){
 				echo "[!] Couldn't find the language\n";
 				$lang = false;
 			}
+			$this->defaultLang = $lang;
 		}while($lang == false);
 		$this->lang = new InstallerLang($lang);
 
@@ -73,6 +74,10 @@ class Installer{
 		$this->networkFunctions();
 
 		$this->endWizard();
+	}
+
+	public function getDefaultLang(){
+		return $this->defaultLang;
 	}
 
 	private function showLicense(){

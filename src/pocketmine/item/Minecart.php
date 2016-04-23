@@ -21,13 +21,10 @@ class Minecart extends Item{
 	}
 
 	public function onActivate(Level $level, Player $player, Block $block, Block $target, $face, $fx, $fy, $fz){
-		$blockTemp = $level->getBlock($block->add(0, -1, 0));
-		//if($blockTemp->getId() != self::RAIL and $blockTemp->getId() != self::POWERED_RAIL) return;
-
 		$minecart = new MinecartEntity($player->getLevel()->getChunk($block->getX() >> 4, $block->getZ() >> 4), new Compound("", [
 			"Pos" => new Enum("Pos", [
 				new Double("", $block->getX()),
-				new Double("", $block->getY() + 1),
+				new Double("", $block->getY() + 0.8),
 				new Double("", $block->getZ())
 			]),
 			"Motion" => new Enum("Motion", [
@@ -47,7 +44,7 @@ class Minecart extends Item{
 			$count = $item->getCount();
 			if(--$count <= 0){
 				$player->getInventory()->setItemInHand(Item::get(Item::AIR));
-				return;
+				return true;
 			}
 
 			$item->setCount($count);

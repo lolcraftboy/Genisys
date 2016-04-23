@@ -23,6 +23,9 @@ namespace pocketmine\block;
 
 use pocketmine\entity\Entity;
 use pocketmine\item\Item;
+use pocketmine\level\Level;
+use pocketmine\level\sound\TNTPrimeSound;
+use pocketmine\math\Vector3;
 use pocketmine\nbt\tag\Byte;
 use pocketmine\nbt\tag\Compound;
 use pocketmine\nbt\tag\Double;
@@ -31,7 +34,7 @@ use pocketmine\nbt\tag\Float;
 use pocketmine\Player;
 use pocketmine\utils\Random;
 
-class TNT extends Solid{
+class TNT extends Solid implements ElectricalAppliance{
 
 	protected $id = self::TNT;
 
@@ -51,12 +54,17 @@ class TNT extends Solid{
 		return true;
 	}
 
-	public function onActivate(Item $item, Player $player = null){
-		if($item->getId() === Item::FLINT_STEEL){
-			$item->useOn($this);
-			$this->getLevel()->setBlock($this, new Air(), true);
+	public function getBurnChance(){
+		return 15;
+	}
 
-			$mot = (new Random())->nextSignedFloat() * M_PI * 2;
+	public function getBurnAbility(){
+		return 100;
+	}
+
+	public function prime(){
+		$this->meta = 1;
+		$mot = (new Random())->nextSignedFloat() * M_PI * 2;
 			$tnt = Entity::createEntity("PrimedTNT", $this->getLevel()->getChunk($this->x >> 4, $this->z >> 4), new Compound("", [
 				"Pos" => new Enum("Pos", [
 					new Double("", $this->x + 0.5),
@@ -75,8 +83,37 @@ class TNT extends Solid{
 				"Fuse" => new Byte("Fuse", 80)
 			]));
 
-			$tnt->spawnToAll();
+		$tnt->spawnToAll();
+		$this->level->addSound(new TNTPrimeSound($this));
+	}
 
+	public function onUpdate($type){
+		if($type == Level::BLOCK_UPDATE_SCHEDULED){
+			$sides = [0, 1, 2, 3, 4, 5];
+			foreach($sides as $side){
+				$block = $this->getSide($side);
+				if($block instanceof RedstoneSource and $block->isActivated($this)){
+					$this->prime();
+					$this->getLevel()->setBlock($this, new Air(), true);
+					break;
+				}
+			}
+			return Level::BLOCK_UPDATE_SCHEDULED;
+		}
+		return false;
+	}
+
+	public function place(Item $item, Block $block, Block $target, $face, $fx, $fy, $fz, Player $player = null){
+		$this->getLevel()->setBlock($this, $this, true, false);
+
+		$this->getLevel()->scheduleUpdate($this, $this->getLevel()->getServer()->getTicksPerSecondAverage() * 2);
+	}
+
+	public function onActivate(Item $item, Player $player = null){
+		if($item->getId() === Item::FLINT_STEEL){
+			$this->prime();
+			$this->getLevel()->setBlock($this, new Air(), true);
+			$item->useOn($this, 2);
 			return true;
 		}
 

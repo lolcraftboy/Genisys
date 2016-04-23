@@ -1,4 +1,24 @@
 <?php
+
+/*
+ *
+ *  _____   _____   __   _   _   _____  __    __  _____
+ * /  ___| | ____| |  \ | | | | /  ___/ \ \  / / /  ___/
+ * | |     | |__   |   \| | | | | |___   \ \/ /  | |___
+ * | |  _  |  __|  | |\   | | | \___  \   \  /   \___  \
+ * | |_| | | |___  | | \  | | |  ___| |   / /     ___| |
+ * \_____/ |_____| |_|  \_| |_| /_____/  /_/     /_____/
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * @author iTX Technologies
+ * @link https://mcper.cn
+ *
+ */
+
 namespace pocketmine\item;
 
 use pocketmine\entity\Effect;
@@ -60,47 +80,55 @@ class Potion extends Item{
 	}
 
 	public static function getColor($meta){
-		switch($meta){
+		return Effect::getEffect(self::getEffectId((int)$meta))->getColor();
+	}
+
+	public static function getEffectId($meta){
+		switch((int)$meta){
 			case self::INVISIBILITY:
 			case self::INVISIBILITY_T:
-				return (Effect::getEffect(Effect::INVISIBILITY)->getColor());
+				return Effect::INVISIBILITY;
 			case self::LEAPING:
 			case self::LEAPING_T:
 			case self::LEAPING_TWO:
-				return (Effect::getEffect(Effect::JUMP)->getColor());
+				return Effect::JUMP;
 			case self::FIRE_RESISTANCE:
 			case self::FIRE_RESISTANCE_T:
-				return (Effect::getEffect(Effect::FIRE_RESISTANCE)->getColor());
+				return Effect::FIRE_RESISTANCE;
 			case self::SPEED:
 			case self::SPEED_T:
 			case self::SPEED_TWO:
-				return (Effect::getEffect(Effect::SPEED)->getColor());
+				return Effect::SPEED;
 			case self::SLOWNESS:
 			case self::SLOWNESS_T:
-				return (Effect::getEffect(Effect::SLOWNESS)->getColor());
+				return Effect::SLOWNESS;
 			case self::WATER_BREATHING:
 			case self::WATER_BREATHING_T:
-				return (Effect::getEffect(Effect::WATER_BREATHING)->getColor());
+				return Effect::WATER_BREATHING;
 			case self::HARMING:
 			case self::HARMING_TWO:
-				return (Effect::getEffect(Effect::HARMING)->getColor());
+				return Effect::HARMING;
 			case self::POISON:
 			case self::POISON_T:
 			case self::POISON_TWO:
-				return (Effect::getEffect(Effect::POISON)->getColor());
+				return Effect::POISON;
 			case self::HEALING:
 			case self::HEALING_TWO:
-				return (Effect::getEffect(Effect::HEALING)->getColor());
+				return Effect::HEALING;
 			case self::NIGHT_VISION:
 			case self::NIGHT_VISION_T:
-				return (Effect::getEffect(Effect::NIGHT_VISION)->getColor());
+				return Effect::NIGHT_VISION;
+			case self::REGENERATION:
+			case self::REGENERATION_T:
+			case self::REGENERATION_TWO:
+				return Effect::REGENERATION;
 			default:
-				return (Effect::getEffect(Effect::WATER_BREATHING)->getColor());
+				return Effect::WATER_BREATHING;
 		}
 	}
 	
 	public function getNameByMeta($meta){
-		switch($meta){
+		switch((int)$meta){
 			case self::WATER_BOTTLE:
 				return "Water Bottle"; 
 			case self::MUNDANE:
@@ -147,7 +175,7 @@ class Potion extends Item{
 				return "Potion of Healing II";
 			case self::NIGHT_VISION:
 			case self::NIGHT_VISION_T:
-				return "Potion os Night Vision";
+				return "Potion of Night Vision";
 			default:
 				return "Potion";
 		}
