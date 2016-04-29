@@ -45,6 +45,7 @@ use pocketmine\block\Sapling;
 use pocketmine\block\SnowLayer;
 use pocketmine\block\Sugarcane;
 use pocketmine\block\Wheat;
+use pocketmine\block\CocoaBlock;
 use pocketmine\entity\Arrow;
 use pocketmine\entity\Entity;
 use pocketmine\entity\Item as DroppedItem;
@@ -247,6 +248,7 @@ class Level implements ChunkManager, Metadatable{
 		Block::SAPLING => Sapling::class,
 		Block::LEAVES => Leaves::class,
 		Block::WHEAT_BLOCK => Wheat::class,
+		Block::COCOA_BLOCK => CocoaBlock::class,
 		Block::FARMLAND => Farmland::class,
 		Block::SNOW_LAYER => SnowLayer::class,
 		Block::ICE => Ice::class,
@@ -1595,10 +1597,9 @@ class Level implements ChunkManager, Metadatable{
 		}
 
 		if($player !== null){
-			if($player->isAdventure() or $player->isSpectator()) return true;
 			$ev = new BlockBreakEvent($player, $target, $item, $player->isCreative() ? true : false);
 
-			if($player->isSurvival() and $item instanceof Item and !$target->isBreakable($item)){
+			if($player->isAdventure() or $player->isSpectator() or ($player->isSurvival() and $item instanceof Item and !$target->isBreakable($item))){
 				$ev->setCancelled();
 			}elseif(!$player->isOp() and ($distance = $this->server->getSpawnRadius()) > -1){
 				$t = new Vector2($target->x, $target->z);
@@ -1777,6 +1778,9 @@ class Level implements ChunkManager, Metadatable{
 					$ev->setCancelled();
 				}
 			}
+			if($player->isAdventure() or $player->isSpectator()){
+				$ev->setCancelled();
+			}
 			$this->server->getPluginManager()->callEvent($ev);
 			if(!$ev->isCancelled()){
 				$target->onUpdate(self::BLOCK_UPDATE_TOUCH);
@@ -1813,7 +1817,6 @@ class Level implements ChunkManager, Metadatable{
 			}else{
 				return false;
 			}
-			if($player->isAdventure() or $player->isSpectator()) return true;
 		}elseif($target->canBeActivated() === true and $target->onActivate($item, $player) === true){
 			return true;
 		}

@@ -74,10 +74,10 @@ namespace pocketmine {
 
 	const VERSION = "1.1dev-legacy";
 	const API_VERSION = "1.13.1";
-	const CODENAME = "Hello, 2016 !";
-	const MINECRAFT_VERSION = "v0.14.x alpha";
-	const MINECRAFT_VERSION_NETWORK = "0.14.1";
-	const Genisys_API_VERSION = '1.7.2';
+	const CODENAME = "Past Amazing!";
+	const MINECRAFT_VERSION = "v0.14.2 alpha";
+	const MINECRAFT_VERSION_NETWORK = "0.14.2";
+	const iTX_API_VERSION = '1.5.8';
 
 	/*
 	 * Startup code. Do not look at it, it may harm you.
