@@ -75,8 +75,8 @@ namespace pocketmine {
 	const VERSION = "1.1dev-legacy";
 	const API_VERSION = "1.13.1";
 	const CODENAME = "Past Amazing!";
-	const MINECRAFT_VERSION = "v0.14.2 alpha";
-	const MINECRAFT_VERSION_NETWORK = "0.14.2";
+	const MINECRAFT_VERSION = "v0.14.3 alpha";
+	const MINECRAFT_VERSION_NETWORK = "0.14.3";
 	const iTX_API_VERSION = '1.5.8';
 
 	/*
